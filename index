@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heatmap Tutorial: Chicago Robbery Crime Hotspots</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script> <!-- Don't forget to add heat map plugin --> 
+    <script src="crimeData.js"></script> <!-- GeoJSON crime data, name it same as you give your Geojson data -->      
+</head>
+<body>
+    <div id="map-title">2023 Chicago Robbery Crime Hotspots</div>
+    <div id="map" style="height: 600px;"></div>
+	
+</body>
+</html>
