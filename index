@@ -10,12 +10,18 @@
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
+            height: 100vh;  /* Force full height */
+            width: 100vw;  /* Force full width */
+            overflow: hidden; /* Prevent scrolling */
         }
         #map {
             position: absolute;
             top: 0;
             bottom: 0;
             width: 100%;
+            height: 100%;
+            background-color: #f0f0f0; /* Debug: Light gray background to see div */
+            border: 2px solid red; /* Debug: Red border to see boundaries */
         }
         #map-title {
             position: absolute;
@@ -69,6 +75,21 @@
     <script src="robbery.js"></script>
     
     <script>
+        console.log('Script starting...');
+        
+        // Debug: Check if Leaflet is loaded
+        if (typeof L === 'undefined') {
+            console.error('Leaflet is not loaded!');
+        } else {
+            console.log('Leaflet is loaded successfully');
+        }
+
+        // Debug: Check if data is loaded
+        console.log('Data object:', typeof data !== 'undefined' ? 'loaded' : 'not loaded');
+        if (typeof data !== 'undefined') {
+            console.log('Sample of data:', data.features[0]);
+        }
+
         // Initialize the map
         var map = L.map('map', {
             center: [41.85, -87.65],
@@ -77,13 +98,24 @@
             minZoom: 10,
         });
 
+        console.log('Map object created');
+
         // Add the tile layer
-        L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
-            attribution: 'Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL.',
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
+        console.log('Tile layer added');
+
         // Make sure data is loaded before proceeding
-        document.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('load', function() {
+            console.log('Window loaded, processing data...');
+            
+            if (typeof data === 'undefined') {
+                console.error('Data is not loaded!');
+                return;
+            }
+
             // Prepare the heatmap data
             var heatPoints = data.features.map(function(feature) {
                 var coords = feature.geometry.coordinates;
@@ -91,39 +123,21 @@
                 return [coords[1], coords[0], intensity];
             });
 
+            console.log('Heat points prepared:', heatPoints.length);
+            console.log('Sample heat point:', heatPoints[0]);
+
             // Add the heatmap layer
-            var heat = L.heatLayer(heatPoints, {
-                radius: 25,
-                blur: 15,
-                maxZoom: 17,
-                opacity: 0.6
-            }).addTo(map);
-
-            // Add invisible circle markers with mouseover functionality
-            data.features.forEach(function(feature) {
-                var coords = feature.geometry.coordinates;
-                var communityName = feature.properties["Community Area"];
-
-                var marker = L.circleMarker([coords[1], coords[0]], {
-                    radius: 10,
-                    color: 'transparent',
-                    fillOpacity: 0.01,
+            if (typeof L.heatLayer === 'undefined') {
+                console.error('Heatmap plugin not loaded!');
+            } else {
+                var heat = L.heatLayer(heatPoints, {
+                    radius: 25,
+                    blur: 15,
+                    maxZoom: 17,
+                    opacity: 0.6
                 }).addTo(map);
-
-                marker.on('mouseover', function() {
-                    marker.bindTooltip(`Community: ${communityName}
-Crime count: ${feature.properties["Crime count"]}`, {
-                        permanent: false,
-                        direction: "top",
-                        opacity: 0.9,
-                        className: 'custom-tooltip'
-                    }).openTooltip();
-                });
-
-                marker.on('mouseout', function() {
-                    marker.closeTooltip();
-                });
-            });
+                console.log('Heatmap layer added');
+            }
 
             // Add legend
             var legend = L.control({ position: 'bottomright' });
@@ -143,6 +157,7 @@ Crime count: ${feature.properties["Crime count"]}`, {
             };
 
             legend.addTo(map);
+            console.log('Legend added');
         });
     </script>
 </body>
